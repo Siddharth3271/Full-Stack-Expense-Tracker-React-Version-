@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import Navbar from "../components/Navbar"
 import { getTransactions, deleteTransaction, getTransactionYears } from '../backendApi/api';
 import MonthlyBarChart from "../components/MonthlyBarChart";
+import CategoryPieChart from '../components/CategoryPieChart';
 const Dashboard = () => {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
@@ -106,9 +107,52 @@ const Dashboard = () => {
         return summary;
     }
 
+    const getCategoryWiseData=(transactions,year,type)=>{
+        const map={};
+        transactions.forEach(t=>{
+            if(!t.transactionDate || !t.transactionCategory) return;
+            const date=new Date(t.transactionDate);
+
+            if(date.getFullYear()!=year) return;
+            const amount=t.transactionAmount || 0;
+
+            if((type==="income" && amount<0) || (type==="expense" && amount>0)) return;
+
+            const categoryName=t.transactionCategory.categoryName;
+            const value= Math.abs(amount);
+
+            map[categoryName]=(map[categoryName] || 0)+value;
+        })
+
+        return {labels: Object.keys(map), data: Object.values(map) };
+    }
+
     const monthlyData = getMonthlyData(transactions, selectedYear);
 
     if (!user) return null;
+
+
+    const incomeCategoryData=getCategoryWiseData(
+        transactions,
+        selectedYear,
+        "income"
+    );
+
+    const expenseCategoryData=getCategoryWiseData(
+        transactions,
+        selectedYear,
+        "expense"
+    );
+
+    const incomeColors = [
+    "#16a34a", "#22c55e", "#4ade80", "#86efac", "#bbf7d0"
+    ];
+
+    const expenseColors = [
+    "#dc2626", "#ef4444", "#f87171", "#fca5a5", "#fecaca"
+    ];
+
+
 
     return (
         <div className="min-h-screen bg-gray-100 p-6">
@@ -153,7 +197,7 @@ const Dashboard = () => {
                         <select
                             value={selectedYear}
                             onChange={(e) => setSelectedYear(Number(e.target.value))}
-                            className="border px-3 py-1 rounded bg-white"
+                            className="border px-3 py-1 rounded bg-white hover:cursor-pointer"
                         >
                             {availableYears.map(year => (
                                 <option key={year} value={year}>
@@ -164,6 +208,22 @@ const Dashboard = () => {
                     </div>
 
                     <MonthlyBarChart monthlyData={monthlyData} />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <CategoryPieChart
+                            title={`Income by Category (${selectedYear})`}
+                            labels={incomeCategoryData.labels}
+                            data={incomeCategoryData.data}
+                            colors={incomeColors}
+                        />
+
+                        <CategoryPieChart
+                            title={`Expense by Category (${selectedYear})`}
+                            labels={expenseCategoryData.labels}
+                            data={expenseCategoryData.data}
+                            colors={expenseColors}
+                        />
+                    </div>
+
 
                     <table className="w-full border-collapse">
                         <thead>
