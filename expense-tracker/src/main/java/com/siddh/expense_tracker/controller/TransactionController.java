@@ -30,8 +30,8 @@ public class TransactionController {
 	private TransactionService transactionService;
 	
 	//getting request for recent transaction history
-	@GetMapping("/recent/user/{userId}")
-	public ResponseEntity<List<Transaction>>getRecentTransactionsByUserId(@PathVariable int userId,@RequestParam int startPage, @RequestParam int endPage, @RequestParam int size){
+	@GetMapping("/recent/me")
+	public ResponseEntity<List<Transaction>>getRecentTransactions(@PathVariable int userId,@RequestParam int startPage, @RequestParam int endPage, @RequestParam int size){
 		logger.info("Getting transactions for userId "+userId+",Page: ("+startPage+","+endPage+")");
         List<Transaction>recentTransactionList=transactionService.getRecentTransactionsByUserId(userId,startPage,endPage,size);
 

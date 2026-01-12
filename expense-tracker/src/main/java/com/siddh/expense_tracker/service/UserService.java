@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.siddh.expense_tracker.entity.User;
@@ -17,6 +18,8 @@ public class UserService {
 	@Autowired
 	private UserRepository userRepository;
 	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 	//getting details from user(GET)
 	public Optional<User> getUserById(int userId){
         logger.info("Getting the user by id: "+userId);
@@ -32,10 +35,21 @@ public class UserService {
     public User createUser(String name,String username,String password){
         User user=new User();
         user.setName(name);
-        user.setPassword(password);
+        user.setPassword(passwordEncoder.encode(password));
         user.setEmail(username);
         user.setCreatedAt(LocalDateTime.now());
 
         return userRepository.save(user);
+    }
+    
+    //authenticating sign-in
+    public User authenticate(String email,String rawPassword) {
+    		 User user=userRepository.findByEmail(email)
+    				 .orElseThrow(()->new RuntimeException("Invalid Credentials"));
+    		 
+    		 if(!passwordEncoder.matches(rawPassword, user.getPassword())) {
+    			 throw new RuntimeException("Invalid Credentials");
+    		 }
+    		 return user;
     }
 }
