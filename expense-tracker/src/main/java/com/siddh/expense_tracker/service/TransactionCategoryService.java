@@ -83,4 +83,61 @@ public class TransactionCategoryService {
         return true;
     }
 	
+	//jwt secured methods
+	public List<TransactionCategory> getTransactionCategoriesForUser(String email){
+	    User user=userRepository.findByEmail(email)
+	            .orElseThrow(()->new RuntimeException("User not found"));
+
+	    return transactionCategoryRepository.findAllByUserId(user.getId());
+	}
+	public TransactionCategory getCategoryByIdForUser(int id, String email){
+	    TransactionCategory category=transactionCategoryRepository.findById(id)
+	            .orElseThrow(()->new RuntimeException("Category not found"));
+
+	    if(!category.getUser().getEmail().equals(email)){
+	        throw new RuntimeException("Unauthorized access");
+	    }
+
+	    return category;
+	}
+	
+	public TransactionCategory createTransactionCategory(String email, String categoryName, String categoryColor){
+	    User user=userRepository.findByEmail(email)
+	            .orElseThrow(()->new RuntimeException("User not found"));
+
+	    TransactionCategory transactionCategory = new TransactionCategory();
+	    transactionCategory.setUser(user);
+	    transactionCategory.setCategoryName(categoryName);
+	    transactionCategory.setCategoryColor(categoryColor);
+
+	    return transactionCategoryRepository.save(transactionCategory);
+	}
+
+	
+	public TransactionCategory updateTransactionCategory(int categoryId, String email, String newCategoryName, String newCategoryColor){
+	    TransactionCategory category=transactionCategoryRepository.findById(categoryId)
+	            .orElseThrow(()->new RuntimeException("Category not found"));
+
+	    if(!category.getUser().getEmail().equals(email)){
+	        throw new RuntimeException("Unauthorized update");
+	    }
+
+	    category.setCategoryName(newCategoryName);
+	    category.setCategoryColor(newCategoryColor);
+
+	    return transactionCategoryRepository.save(category);
+	}
+	
+	public void deleteTransactionCategory(int categoryId, String email){
+	    TransactionCategory category=transactionCategoryRepository.findById(categoryId)
+	            .orElseThrow(()->new RuntimeException("Category not found"));
+
+	    if(!category.getUser().getEmail().equals(email)) {
+	        throw new RuntimeException("Unauthorized delete");
+	    }
+
+	    transactionCategoryRepository.delete(category);
+	}
+
+
 }

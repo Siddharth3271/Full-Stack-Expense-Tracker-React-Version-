@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,49 +32,65 @@ public class TransactionController {
 	
 	//getting request for recent transaction history
 	@GetMapping("/recent/me")
-	public ResponseEntity<List<Transaction>>getRecentTransactions(@PathVariable int userId,@RequestParam int startPage, @RequestParam int endPage, @RequestParam int size){
-		logger.info("Getting transactions for userId "+userId+",Page: ("+startPage+","+endPage+")");
-        List<Transaction>recentTransactionList=transactionService.getRecentTransactionsByUserId(userId,startPage,endPage,size);
-
-        return ResponseEntity.status(HttpStatus.OK).body(recentTransactionList);
+	public ResponseEntity<List<Transaction>>getRecentTransactions(@RequestParam int startPage, @RequestParam int endPage, @RequestParam int size){
+		String email=SecurityContextHolder.getContext()
+				.getAuthentication()
+				.getName();
+		logger.info("Getting transactions for logged-in user: "+email+",Page: ("+startPage+","+endPage+")");
+		return ResponseEntity.ok(transactionService.getRecentTransactionsForUser(email, startPage, endPage, size));
 	}
 	
 	//getting request for transaction for a particular year
-	@GetMapping("/user/{userId}")
-	public ResponseEntity<List<Transaction>>getAllTransactionsByUserIdAndYearOrMonth(@PathVariable int userId, @RequestParam int year, @RequestParam(required=false)Integer month){
-		logger.info("getting all transactions with userId: "+userId+" @"+year);
+	@GetMapping("/me")
+	public ResponseEntity<List<Transaction>>getAllTransactionsByYearOrMonth(@RequestParam int year, @RequestParam(required=false)Integer month){
+		
+		String email = SecurityContextHolder
+		        .getContext()
+		        .getAuthentication()
+		        .getName();
+		logger.info("getting all transactions with email "+email+" and "+year);
 		
 		List<Transaction>transactionList=null;
 		
 		if(month==null) {
-			transactionList=transactionService.getAllTransactionsByUserIdAndYear(userId,year);
+			transactionList=transactionService.getTransactionsForUserByYear(email,year);
 		}
 		else {
-			transactionList=transactionService.getAllTransactionsByUserIdAndYearAndMonth(userId,year,month);
+			transactionList=transactionService.getTransactionsForUserByYearAndMonth(email,year,month);
 		}
 		
-		return ResponseEntity.status(HttpStatus.OK).body(transactionList);
+		return ResponseEntity.ok(transactionList);
 	}
 	
 	@GetMapping("/{transactionId}")
 	public ResponseEntity<Transaction>getTransactionById(@PathVariable int transactionId) {
 
-	    logger.info("Getting transaction with id " + transactionId);
+		String email = SecurityContextHolder.getContext()
+	            .getAuthentication()
+	            .getName();
 
-	    Transaction transaction = transactionService.getTransactionById(transactionId);
+	    Transaction transaction=transactionService.getTransactionById(transactionId);
 
 	    if(transaction == null){
-	        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+	        return ResponseEntity.notFound().build();
+	    }
+
+	    if(!transaction.getUser().getEmail().equals(email)) {
+	        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 	    }
 
 	    return ResponseEntity.ok(transaction);
 	}
 	
 	//getting request for distinct years
-	@GetMapping("/years/{userId}")
-	public ResponseEntity<List<Integer>>getDistinctTransactionYears(@PathVariable int userId){
-		logger.info("Getting distinct years: "+userId);
-        return ResponseEntity.status(HttpStatus.OK).body(transactionService.getDistinctTransactionYears(userId));
+	@GetMapping("/years/me")
+	public ResponseEntity<List<Integer>>getDistinctTransactionYears(){
+		String email = SecurityContextHolder
+		        .getContext()
+		        .getAuthentication()
+		        .getName();
+		logger.info("Getting distinct years: "+ email);
+        return ResponseEntity.ok(transactionService.getDistinctTransactionYearsForUser(email));
 	}
 	
 	//request for creating new transaction
@@ -84,7 +101,7 @@ public class TransactionController {
 	    if(newTransaction==null){
 	    	return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 	    }
-	    return ResponseEntity.status(HttpStatus.OK).body(newTransaction);
+	    return ResponseEntity.status(HttpStatus.CREATED).body(newTransaction);
 	 }
 	 
 	 //request for updating transaction

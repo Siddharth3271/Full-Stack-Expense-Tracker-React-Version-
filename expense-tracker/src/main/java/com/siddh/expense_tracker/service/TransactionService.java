@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.siddh.expense_tracker.entity.Transaction;
@@ -68,16 +69,19 @@ public class TransactionService {
         );
     }
 	
-	//getting transaction active years(GET)
-	public List<Integer>getDistinctTransactionYears(int userId){
-        return transactionRepository.findDistinctYears(userId);
-    }
+	//getting transaction active years(GET)  (jwt secured)
+	public List<Integer> getDistinctTransactionYearsForUser(String email) {
+	    User user=userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+
+	    return transactionRepository.findDistinctYears(user.getId());
+	}
 	
 	//create a user transaction(POST)
 	public Transaction createTransaction(Transaction transaction) {
 		logger.info("Creating Transaction");
 		
 		//find category
+		String email=SecurityContextHolder.getContext().getAuthentication().getName();
 		Optional<TransactionCategory>transactionCategoryOptional=Optional.empty();
 		if(transaction.getTransactionCategory()!=null) {
 			logger.info(String.valueOf(transaction.getTransactionCategory().getId()));
@@ -85,8 +89,7 @@ public class TransactionService {
 		}
 		
 		//find user
-		User user=userRepository.findById(transaction.getUser().getId())
-				.orElseThrow(() -> new RuntimeException("User not found!"));
+		User user=userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
 		
 		//create a new transaction object
 		Transaction newTransaction=new Transaction();
@@ -109,13 +112,17 @@ public class TransactionService {
 	
 	//updating transaction(PUT)
 	public Transaction updateTransaction(int transactionId,Transaction incoming){
+		String email = SecurityContextHolder
+		        .getContext()
+		        .getAuthentication()
+		        .getName();
         logger.info("Updating transaction with id: "+transactionId);
         Transaction existing = transactionRepository.findById(transactionId)
                 .orElseThrow(()->new RuntimeException("Transaction not found"));
-
+        
 
         //Security: ownership check
-        if(!existing.getUser().getId().equals(incoming.getUser().getId())){
+        if(!existing.getUser().getEmail().equals(email)){
             throw new RuntimeException("Unauthorized update");
         }
 
@@ -140,12 +147,49 @@ public class TransactionService {
 	//delete transaction(DELETE)
     public void deleteTransactionById(int transactionId){
         logger.info("Deleting Transaction with id "+transactionId);
-        Optional<Transaction>transactionOptional=transactionRepository.findById(transactionId);
+        String email = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+//        Optional<Transaction>transactionOptional=transactionRepository.findById(transactionId);
+//
+//        if(transactionOptional.isEmpty()) return;
+//
+//        transactionRepository.delete(transactionOptional.get());
+        
+        Transaction transaction=transactionRepository.findById(transactionId)
+                .orElseThrow(()->new RuntimeException("Transaction not found"));
 
-        if(transactionOptional.isEmpty()) return;
+        if(!transaction.getUser().getEmail().equals(email)){
+            throw new RuntimeException("Unauthorized delete");
+        }
 
-        transactionRepository.delete(transactionOptional.get());
+        transactionRepository.delete(transaction);
     }
+    
+    //jwt secured updated methods
+    public List<Transaction> getRecentTransactionsForUser(String email, int startPage, int endPage, int size){
+        User user=userRepository.findByEmail(email)
+                .orElseThrow(()->new RuntimeException("User not found"));
+
+     return getRecentTransactionsByUserId(user.getId(), startPage, endPage, size);
+    }
+    
+    public List<Transaction> getTransactionsForUserByYear(String email,int year){
+        User user=userRepository.findByEmail(email)
+                .orElseThrow(()->new RuntimeException("User not found"));
+
+        return getAllTransactionsByUserIdAndYear(user.getId(),year);
+    }
+
+    public List<Transaction> getTransactionsForUserByYearAndMonth(String email, int year, int month) {
+        User user=userRepository.findByEmail(email)
+                .orElseThrow(()->new RuntimeException("User not found"));
+
+        return getAllTransactionsByUserIdAndYearAndMonth(user.getId(), year, month);
+    }
+
+
 }
 
 
