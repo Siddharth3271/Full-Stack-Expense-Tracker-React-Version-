@@ -1,13 +1,13 @@
 import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
-const Navbar = ({user}) => {
+const Navbar = () => {
 
     const navigate=useNavigate();
     const [isDropdownOpen,setIsDropdownOpen]=React.useState(false);
 
     const handleLogout=()=>{
-        localStorage.removeItem("user");
+        localStorage.removeItem("accessToken");
         navigate("/login");
     };
 
@@ -57,7 +57,7 @@ const Navbar = ({user}) => {
 
           {/* User Info & Logout */}
           <div className="flex items-center gap-4 border-l pl-4 border-gray-300">
-            <span className="text-sm text-gray-300">Hello, {user?.name}</span>
+            {/* <span className="text-sm text-gray-300">Hello, {user?.name}</span> */}
             <button 
               onClick={handleLogout}
               className="bg-red-500 hover:bg-red-600 px-3 py-1 rounded text-sm transition hover:scale-105 cursor-pointer"

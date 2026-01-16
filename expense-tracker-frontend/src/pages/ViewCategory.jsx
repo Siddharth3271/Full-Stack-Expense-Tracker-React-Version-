@@ -4,29 +4,23 @@ import { getCategories , deleteCategories } from '../backendApi/api';
 import Navbar from "../components/Navbar"
 const ViewCategory = () => {
     const navigate=useNavigate();
-    const [user,setUser]=useState(null);
+    // const [user,setUser]=useState(null);
     const [categories,setCategories]=useState([]);
 
-    const fetchCategories=async(userId)=>{
+    const fetchCategories=async()=>{
             try{
-                const data=await getCategories(userId);
+                const data=await getCategories();
                 setCategories(data);
             }
             catch(error){
                 console.error("Error fetching categories:",error);
+                navigate("/login");
             }
         }
     
         useEffect(()=>{
-            const loggedInUser=localStorage.getItem("user");
-            if(loggedInUser){
-                setUser(JSON.parse(loggedInUser));
-                fetchCategories(JSON.parse(loggedInUser).id);
-            }
-            else{
-                navigate("/login");
-            }
-        },[navigate]);
+            fetchCategories();
+        },[]);
 
         const handleDelete=async(id)=>{
             if(window.confirm("Are you sure you want to delete this category?")){
@@ -47,11 +41,11 @@ const ViewCategory = () => {
             }
         };
 
-        if(!user) return null;
+        // if(!user) return null;
     
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar user={user} />
+      <Navbar/>
 
       <div className="container mx-auto p-6 max-w-4xl">
         <div className="flex justify-between items-center mb-6">

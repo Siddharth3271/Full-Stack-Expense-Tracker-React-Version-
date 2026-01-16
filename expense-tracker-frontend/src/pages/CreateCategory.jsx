@@ -5,20 +5,11 @@ import Navbar from "../components/Navbar"
 
 const CreateCategory = () => {
     const navigate=useNavigate();
-    const [user,setUser]=useState(null);
+    // const [user,setUser]=useState(null);
 
     const [name,setName]=useState("");
     const [color,setColor]=useState("#000000");
 
-    useEffect(()=>{
-        const loggedInUser=localStorage.getItem("user");
-        if(loggedInUser){
-            setUser(JSON.parse(loggedInUser));
-        }
-        else{
-            navigate("/login");
-        }
-    },[navigate]);
 
     const handleSubmit=async(e)=>{
         e.preventDefault();
@@ -26,7 +17,6 @@ const CreateCategory = () => {
         const categoryData={
             categoryName:name,
             categoryColor:color,
-            user:{id:user.id}
         }
 
         try{
@@ -40,11 +30,11 @@ const CreateCategory = () => {
         }
     }
 
-    if(!user) return null;
+    // if(!user) return null;
 
   return (
     <div className="min-h-screen bg-gray-100">
-            <Navbar user={user} />
+            <Navbar/>
 
             <div className="flex justify-center items-center mt-10 p-4">
                 <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md border border-gray-200">

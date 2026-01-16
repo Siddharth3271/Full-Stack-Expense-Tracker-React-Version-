@@ -6,33 +6,26 @@ import Navbar from "../components/Navbar"
 const EditCategory = () => {
     const navigate=useNavigate();
     const {id} =useParams();
-    const [user, setUser]=useState(null);
+    // const [user, setUser]=useState(null);
     const [name,setName]=useState("");
     const [color,setColor]=useState("#000000");
 
-    const loadCategoryData=async(categoryId)=>{
+    const loadCategoryData=async()=>{
         try{
-            const data=await getCategoryById(categoryId);
+            const data=await getCategoryById(id);
             setName(data.categoryName);
             setColor(data.categoryColor);
         }
         catch(error){
             console.error("Error loading category",error);
             alert("Failed to load category data");
+            navigate("/login");
         }
     };
 
     useEffect(()=>{
-        const loggedInUser=localStorage.getItem("user");
-        if(loggedInUser){
-            const parsedUser=JSON.parse(loggedInUser);
-            setUser(parsedUser);
-            loadCategoryData(id);
-        }
-        else{
-            navigate("/login");
-        }
-    },[navigate,id]);
+        loadCategoryData();
+    },[id]);
 
     const handleSubmit=async(e)=>{
         e.preventDefault();
@@ -51,10 +44,10 @@ const EditCategory = () => {
         }
     }
 
-    if(!user) return null;
+    // if(!user) return null;
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar user={user} />
+      <Navbar/>
 
       <div className="flex justify-center items-center mt-10 p-4">
         <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md border border-gray-200">

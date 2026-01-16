@@ -5,50 +5,43 @@ import { addTransaction, getCategories } from '../backendApi/api';
 const AddTransaction = () => {
     const navigate=useNavigate();
 
-    const [user, setUser]=useState(null);
+    // const [user, setUser]=useState(null);
 
     const [description,setDescription]=useState("");
-    const [amount,setAmount]=useState(0);
+    const [amount,setAmount]=useState("");
     const [date,setDate]=useState(new Date().toISOString().split('T')[0])
     const [categoryId,setCategoryId]=useState("");
     const [categories,setCategories]=useState([]);
     const [type,setType]=useState("expense");
 
-    const fetchCategories=async(userId)=>{
+    const fetchCategories=async()=>{
         try{
-            const data=await getCategories(userId);
+            const data=await getCategories();
             setCategories(data);
 
             if(data.length>0) setCategoryId(data[0].id);
         }
         catch(error){
             console.error("Error fetching categories:",error);
+            navigate("/login");
         }
     }
 
     useEffect(()=>{
-        const loggedInUser=localStorage.getItem("user");
-        if(loggedInUser){
-            setUser(JSON.parse(loggedInUser));
-            fetchCategories(JSON.parse(loggedInUser).id);
-        }
-        else{
-            navigate("/login");
-        }
+        fetchCategories();
     },[navigate]);
 
     const handleSubmit=async(e)=>{
         e.preventDefault();
 
         const finalAmount=parseFloat(amount);
-        const adjustedAmount=type=="expense"?-Math.abs(finalAmount):Math.abs(finalAmount);
+        const adjustedAmount=type==="expense"?-Math.abs(finalAmount):Math.abs(finalAmount);
 
         const transactionData={
             transactionName: description,
             transactionAmount:adjustedAmount,
             transactionDate:date,
             transactionCategory:{id:parseInt(categoryId)},
-            user:{id:user.id}
         };
 
         console.log("SENDING DATA:", transactionData);
@@ -68,11 +61,11 @@ const AddTransaction = () => {
         navigate("/dashboard");
     }
 
-    if(!user) return null;
+    // if(!user) return null;
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar user={user} />
+      <Navbar/>
 
       <div className="flex justify-center items-center mt-10 p-4">
         <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md border border-gray-200">

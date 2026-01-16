@@ -6,7 +6,7 @@ import MonthlyBarChart from "../components/MonthlyBarChart";
 import CategoryPieChart from '../components/CategoryPieChart';
 const Dashboard = () => {
     const navigate = useNavigate();
-    const [user, setUser] = useState(null);
+    // const [user, setUser] = useState(null);
     const [transactions, setTransactions] = useState([]);
     const [totalIncome, setTotalIncome] = useState(0);
     const [totalExpense, setTotalExpense] = useState(0);
@@ -47,9 +47,9 @@ const Dashboard = () => {
     }, [transactions]);
 
 
-    const fetchData = async (userId) => {
+    const fetchData = async () => {
         try {
-            const data = await getTransactions(userId);
+            const data = await getTransactions();
             console.log("DEBUG DATA:", data);
             setTransactions(data);
         }
@@ -59,24 +59,23 @@ const Dashboard = () => {
     }
 
     useEffect(() => {
-        const loggedInUser = localStorage.getItem("user");
-        if (loggedInUser) {
-            setUser(JSON.parse(loggedInUser));
-            fetchData(JSON.parse(loggedInUser).id);
+        // const loggedInUser = localStorage.getItem("user");
+        
+            // setUser(JSON.parse(loggedInUser));
+        fetchData();
 
-            getTransactionYears(JSON.parse(loggedInUser).id)
-                .then(years => {
-                    setAvailableYears(years);
-                    if (years.length > 0) {
-                        setSelectedYear(years[0]);
-                    }
-                })
-                .catch(err => console.error("Error loading years", err));
-        }
-        else {
-            navigate("/login");
-        }
-    }, [navigate]);
+        getTransactionYears()
+            .then((years) => {
+                setAvailableYears(years);
+                if(years.length>0){
+                    setSelectedYear(years[0]);
+                }
+            })
+            .catch((err)=>{
+                console.error("Error loading years", err);
+                navigate("/login");
+            });      
+    },[navigate]);
 
     const getMonthlyData = (transactions, year) => {
         const months = [
@@ -129,7 +128,7 @@ const Dashboard = () => {
 
     const monthlyData = getMonthlyData(transactions, selectedYear);
 
-    if (!user) return null;
+    // if (!user) return null;
 
 
     const incomeCategoryData=getCategoryWiseData(
@@ -157,7 +156,7 @@ const Dashboard = () => {
     return (
         <div className="min-h-screen bg-gray-100 p-6">
 
-            <Navbar user={user} />
+            <Navbar/>
 
             {/* --- TOP CARDS (Balance, Income, Expense) --- */}
             <div className="py-6 grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">

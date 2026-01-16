@@ -7,7 +7,7 @@ const EditTransaction = () => {
 
     const navigate=useNavigate();
     const {id}=useParams();
-    const [user, setUser]=useState(null);
+    // const [user, setUser]=useState(null);
 
     const [description,setDescription]=useState("");
     const [amount,setAmount]=useState(0);
@@ -16,12 +16,12 @@ const EditTransaction = () => {
     const [categories,setCategories]=useState([]);
     const [type,setType]=useState("expense");
 
-    const loadData=async(userId,transactionId)=>{
+    const loadData=async()=>{
         try{
-            const cat=await getCategories(userId);
+            const cat=await getCategories();
             setCategories(cat);
 
-            const transaction=await getTransactionId(transactionId);
+            const transaction=await getTransactionId(id);
             setDescription(transaction.transactionName);
             setDate(transaction.transactionDate);
             setCategoryId(transaction.transactionCategory.id);
@@ -32,20 +32,13 @@ const EditTransaction = () => {
         }
         catch(error){
             console.error("Error loading data:",error);
+            navigate("/login");
         }
     };
 
     useEffect(()=>{
-        const loggedInUser=localStorage.getItem("user");
-        if(loggedInUser){
-            const parsedUser=JSON.parse(loggedInUser);
-            setUser(parsedUser);
-            loadData(parsedUser.id,id);
-        }
-        else{
-            navigate("/login");
-        }
-    },[navigate,id]);
+        loadData();
+    },[id]);
 
     const handleSubmit=async(e)=>{
             e.preventDefault();
@@ -58,7 +51,6 @@ const EditTransaction = () => {
                 transactionAmount:adjustedAmount,
                 transactionDate:date,
                 transactionCategory:{id:parseInt(categoryId)},
-                user:{id:user.id}
             };
     
             console.log("SENDING DATA:", transactionData);
@@ -74,10 +66,10 @@ const EditTransaction = () => {
             }
         }
 
-        if(!user) return null;
+        // if(!user) return null;
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar user={user} />
+      <Navbar/>
       <div className="flex justify-center items-center mt-10 p-4">
         <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md border border-gray-200">
           <h2 className="text-2xl font-bold mb-6 text-gray-800">Edit Transaction</h2>
