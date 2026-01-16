@@ -6,6 +6,7 @@ import EditTransaction from "./pages/EditTransaction";
 import CreateCategory from "./pages/CreateCategory";
 import Categories from "./pages/ViewCategory";
 import EditCategory from "./pages/EditCategory";
+import SignUp from "./pages/SignUp";
 function App() {
   return (
     <BrowserRouter>
@@ -15,6 +16,9 @@ function App() {
 
         {/* login page */}
         <Route path="/login" element={<Login/>}/>
+
+        {/* signup page */}
+        <Route path="/signup" element={<SignUp/>}/>
 
         {/* dashboard page */}
         <Route path="/dashboard" element={<Dashboard/>}/>
