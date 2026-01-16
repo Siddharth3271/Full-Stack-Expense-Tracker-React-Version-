@@ -23,11 +23,11 @@ const Login = () => {
         e.preventDefault();
 
         try{
-            const user=await loginUser(formData.email,formData.password);
+            await loginUser(formData.email,formData.password);
             
-            console.log("Login successful:",user);
+            console.log("Login successful");
 
-            localStorage.setItem("user",JSON.stringify(user));
+            // localStorage.setItem("user",JSON.stringify(user));
             alert("Login Successful!");
             navigate("/dashboard");
         }

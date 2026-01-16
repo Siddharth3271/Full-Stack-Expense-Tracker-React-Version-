@@ -85,7 +85,7 @@ public class TransactionCategoryController {
 		
 		TransactionCategory updatedTransactionCategory=transactionCategoryService.updateTransactionCategory(id, email,newName, newColor);
 		
-		if(updatedTransactionCategory==null) {
+		if(updatedTransactionCategory==null){
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
 		
