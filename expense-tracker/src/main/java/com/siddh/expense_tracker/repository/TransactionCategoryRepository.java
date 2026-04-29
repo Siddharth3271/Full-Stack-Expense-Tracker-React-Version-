@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface TransactionCategoryRepository extends JpaRepository<TransactionCategory,Integer> {
     @Query("SELECT t FROM TransactionCategory t WHERE t.user.id = :userId")
-    List<TransactionCategory> findAllByUserId(int userId);
+    List<TransactionCategory> findAllByUserId(Long userId);
 }

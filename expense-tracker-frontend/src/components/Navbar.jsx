@@ -10,10 +10,24 @@ const Navbar = () => {
 
     const handleLogout=()=>{
         localStorage.removeItem("accessToken");
+        localStorage.removeItem("user");
         navigate("/login");
     };
 
-    const name = JSON.parse(localStorage.getItem("user"))?.name;
+    const storedUser = localStorage.getItem("user");
+
+    let user = null;
+
+    try{
+    user = storedUser && storedUser !== "undefined"
+        ? JSON.parse(storedUser)
+        : null;
+    } 
+    catch(error){
+    user = null;
+    }
+
+    const name = user?.name || "User";
 
   return (
     <nav className="bg-gray-500 text-white p-4 shadow-md rounded-b-xl lg:rounded-xl">

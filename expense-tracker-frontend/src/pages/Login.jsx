@@ -26,8 +26,7 @@ const Login = () => {
             await loginUser(formData.email,formData.password);
             
             console.log("Login successful");
-
-            // localStorage.setItem("user",JSON.stringify(user));
+           
             alert("Login Successful!");
             navigate("/dashboard");
         }

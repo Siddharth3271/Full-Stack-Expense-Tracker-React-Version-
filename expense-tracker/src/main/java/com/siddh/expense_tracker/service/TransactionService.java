@@ -34,7 +34,7 @@ public class TransactionService {
 	private UserRepository userRepository;
 	
 	//getting recent transactions(GET)
-	public List<Transaction>getRecentTransactionsByUserId(int userId,int startPage,int endPage,int size){
+	public List<Transaction>getRecentTransactionsByUserId(Long userId,int startPage,int endPage,int size){
 		logger.info("Getting the most recent Transactions for user "+userId);
 		
 		List<Transaction> combinedResults=new ArrayList<>();
@@ -49,7 +49,7 @@ public class TransactionService {
 	}
 	
 	//getting transactions per year(GET)
-	public List<Transaction>getAllTransactionsByUserIdAndYear(int userId,int year){
+	public List<Transaction>getAllTransactionsByUserIdAndYear(Long userId,int year){
 		logger.info("Getting all transaction in year: "+year+" for user: "+userId);
 		LocalDate startDate=LocalDate.of(year, 1, 1);
 		LocalDate endDate=LocalDate.of(year, 12, 31);
@@ -58,7 +58,7 @@ public class TransactionService {
 	}
 	
 	//getting transactions per year(GET)
-	public List<Transaction>getAllTransactionsByUserIdAndYearAndMonth(int userId,int year,int month){
+	public List<Transaction>getAllTransactionsByUserIdAndYearAndMonth(Long userId,int year,int month){
         logger.info("Getting all transaction in month: "+month+" and year: "+year+" for user: "+userId);
         YearMonth yearMonth = YearMonth.of(year, month);
         LocalDate startDate=LocalDate.of(year,month,1);

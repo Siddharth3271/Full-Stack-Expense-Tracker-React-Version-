@@ -1,5 +1,6 @@
 package com.siddh.expense_tracker.controller;
 
+import com.siddh.expense_tracker.dto.UserResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,7 +43,9 @@ public class AuthController {
 	public ResponseEntity<AuthResponse> signIn(@RequestBody SigninRequest signinRequest) {
 		User user=userService.authenticate(signinRequest.email, signinRequest.password);
 		String token=jwtService.generateAccessToken(user.getEmail());
-		return ResponseEntity.ok(new AuthResponse(token));
+		UserResponse userResponse=new UserResponse(user.getId(), user.getName(), user.getEmail());
+
+        return ResponseEntity.ok(new AuthResponse(token,userResponse));
 	}
 	
 }

@@ -29,7 +29,7 @@ public class TransactionCategoryService {
     }
 	
 	//getting all categories(GET)
-	public List<TransactionCategory>getAllTransactionCategoriesByUserId(int userId){
+	public List<TransactionCategory>getAllTransactionCategoriesByUserId(Long userId){
         logger.info("Getting all transaction Categories from user: "+userId);
         return transactionCategoryRepository.findAllByUserId(userId);
     }

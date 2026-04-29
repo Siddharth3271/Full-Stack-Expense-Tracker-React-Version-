@@ -14,7 +14,15 @@ api.interceptors.request.use((config)=>{
 //signin and signout mechanism
 export const loginUser=async(email,password)=>{
     const response=await api.post('auth/signin',{email,password});
+
+    console.log("Login Response:",response.data);
     localStorage.setItem("accessToken",response.data.accessToken);
+
+    const user = response.data.userResponse || response.data.user;
+    console.log("User:",user);
+    if(user){
+        localStorage.setItem("user",JSON.stringify(user));
+    }
     return response.data;
 };
 
@@ -25,6 +33,7 @@ export const registerUser=async(user)=>{
 
 export const logoutUser=()=>{
   localStorage.removeItem("accessToken");
+  localStorage.removeItem("user");
 };
 
 //transactions

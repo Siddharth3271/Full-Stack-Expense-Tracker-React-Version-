@@ -11,9 +11,9 @@ import java.util.List;
 
 public interface TransactionRepository extends JpaRepository<Transaction,Integer> {
     //get the data by page
-    List<Transaction>findAllByUserIdOrderByTransactionDateDesc(int userId, Pageable pageable);
-    List<Transaction>findAllByUserIdAndTransactionDateBetweenOrderByTransactionDateDesc(int userId, LocalDate startDate, LocalDate endDate);
+    List<Transaction>findAllByUserIdOrderByTransactionDateDesc(Long userId, Pageable pageable);
+    List<Transaction>findAllByUserIdAndTransactionDateBetweenOrderByTransactionDateDesc(Long userId, LocalDate startDate, LocalDate endDate);
 
     @Query("SELECT DISTINCT YEAR(t.transactionDate) FROM Transaction t WHERE t.user.id = :userId ORDER BY YEAR(t.transactionDate) DESC")
-    List<Integer> findDistinctYears(@Param("userId") int userId);
+    List<Integer> findDistinctYears(@Param("userId") Long userId);
 }
