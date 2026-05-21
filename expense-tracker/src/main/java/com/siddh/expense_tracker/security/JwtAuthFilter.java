@@ -30,30 +30,41 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)throws ServletException, IOException{
 		
 		String path=request.getRequestURI();
-		if (path.startsWith("/api/v1/auth")){
+//        System.out.println("JWT FILTER PATH = " + path);
+		if (path.startsWith("/api/v1/auth") || path.startsWith("/api/v1/transaction/ai/ask")){
+//            System.out.println("SKIPPING JWT FOR = " + path);
 	        filterChain.doFilter(request, response);
 	        return;
 	    }
 		
 		String authHeader=request.getHeader("Authorization");
+//        System.out.println("AUTH HEADER = " + authHeader);
 		
 		if(authHeader==null || !authHeader.startsWith("Bearer ")) {
+//            System.out.println("NO VALID BEARER HEADER");
 			filterChain.doFilter(request, response);
 			return;
 		}
 		String token=authHeader.substring(7);
 		String email=jwtService.extractUsername(token);
+//        System.out.println("EMAIL FROM TOKEN = " + email);
 		
 		if(email!=null && SecurityContextHolder.getContext().getAuthentication()==null) {
 			UserDetails userDetails=customUserDetailsService.loadUserByUsername(email);
+//            System.out.println("USER DETAILS FOUND = " + userDetails.getUsername());
 			
 			if(jwtService.isTokenValid(token, userDetails.getUsername())) {
+//                System.out.println("TOKEN VALID");
 				UsernamePasswordAuthenticationToken authenToken=new UsernamePasswordAuthenticationToken(userDetails, null,userDetails.getAuthorities());
 				
 				authenToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 				SecurityContextHolder.getContext().setAuthentication(authenToken);
 			}
+            else {
+//                System.out.println("TOKEN INVALID");
+            }
 		}
+//        System.out.println("AUTH IN CONTEXT = " + SecurityContextHolder.getContext().getAuthentication());
 		
 		filterChain.doFilter(request, response);
 	}
