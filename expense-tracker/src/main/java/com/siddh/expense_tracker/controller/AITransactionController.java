@@ -1,5 +1,6 @@
 package com.siddh.expense_tracker.controller;
 
+import com.siddh.expense_tracker.dto.AITransactionAdviceResponse;
 import com.siddh.expense_tracker.entity.Transaction;
 import com.siddh.expense_tracker.repository.TransactionRepository;
 import com.siddh.expense_tracker.service.AIService;
@@ -28,18 +29,18 @@ public class AITransactionController {
     }
 
     @GetMapping("/advice/recent")
-    public String getRecentTransactionAdvice(Authentication authentication){
+    public AITransactionAdviceResponse getRecentTransactionAdvice(Authentication authentication){
         String email=authentication.getName();
 
         List<Transaction> transactionList=transactionService.getRecentTransactionsForUser(email,0,0,20);
-        return aiService.generateTransactionAdvice(transactionList);
+        return aiService.generateStructuredTransactionAdvice(transactionList);
     }
 
     @GetMapping("/advice/month")
-    public String getMonthlyTransactionAdvice(Authentication authentication, @RequestParam int year, @RequestParam int month){
+    public AITransactionAdviceResponse getMonthlyTransactionAdvice(Authentication authentication, @RequestParam int year, @RequestParam int month){
         String email=authentication.getName();
 
         List<Transaction> transactionList=transactionService.getTransactionsForUserByYearAndMonth(email,year,month);
-        return aiService.generateTransactionAdvice(transactionList);
+        return aiService.generateStructuredTransactionAdvice(transactionList);
     }
 }
